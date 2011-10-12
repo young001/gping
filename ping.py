@@ -44,7 +44,7 @@ class MyStats:
     totTime = 0
     fracLoss = 1.0
 
-myStats = MyStats # Used globally
+myStats = MyStats # Used globally FIXME: Don't use global
 
 
 def checksum(source_string):
