@@ -172,7 +172,7 @@ def send_one_ping(mySocket, destIP, myID, mySeqNumber, numDataBytes):
 
     packet = header + data
 
-    sendTime = time.time()
+    sendTime = default_timer()
 
     try:
         mySocket.sendto(packet, (destIP, 1)) # Port number is irrelevant for ICMP
@@ -190,13 +190,13 @@ def receive_one_ping(mySocket, myID, timeout):
     timeLeft = timeout / 1000
 
     while True: # Loop while waiting for packet or timeout
-        startedSelect = time.time()
+        startedSelect = default_timer()
         whatReady = select.select([mySocket], [], [], timeLeft)
-        howLongInSelect = (time.time() - startedSelect)
+        howLongInSelect = (default_timer() - startedSelect)
         if whatReady[0] == []: # Timeout
             return None, 0, 0, 0, 0
 
-        timeReceived = time.time()
+        timeReceived = default_timer()
 
         recPacket, addr = mySocket.recvfrom(ICMP_MAX_RECV)
 
@@ -321,5 +321,3 @@ if __name__ == '__main__':
         verbose_ping(sys.argv[1])
     else:
         print "Error: call ./ping.py domain.tld"
-
-
