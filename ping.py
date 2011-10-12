@@ -240,8 +240,7 @@ def dump_stats():
             myStats.minTime, myStats.totTime / myStats.pktsRcvd, myStats.maxTime
         ))
 
-    print()
-    return
+    print("")
 
 
 def signal_handler(signum, frame):
@@ -275,7 +274,7 @@ def verbose_ping(hostname, timeout=1000, count=3, numDataBytes=55):
         print("\nPYTHON-PING %s (%s): %d data bytes" % (hostname, destIP, numDataBytes))
     except socket.gaierror as e:
         print("\nPYTHON-PING: Unknown host: %s (%s)" % (hostname, e.args[1]))
-        print()
+        print("")
         return
 
     myStats.thisIP = destIP
