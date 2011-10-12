@@ -1,0 +1,25 @@
+A pure python ping implementation using raw sockets.
+
+Note that ICMP messages can only be sent from processes running as root
+(in Windows, you must run this script as 'Administrator').
+
+=== usage ===
+
+{{{
+~/python-ping$ sudo ./ping.py google.com
+
+PYTHON-PING google.com (74.125.39.147): 55 data bytes
+64 bytes from 74.125.39.147: icmp_seq=0 ttl=53 time=23 ms
+64 bytes from 74.125.39.147: icmp_seq=1 ttl=52 time=20 ms
+64 bytes from 74.125.39.147: icmp_seq=2 ttl=53 time=22 ms
+
+----74.125.39.147 PYTHON PING Statistics----
+3 packets transmitted, 3 packets received, 0.0% packet loss
+round-trip (ms)  min/avg/max = 20/22.4/23
+}}}
+
+=== TODOs ===
+
+* refactor ping.py
+* create a CLI interface
+* add a "suprocess ping", with output parser
