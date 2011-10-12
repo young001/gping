@@ -76,6 +76,13 @@ def calculate_checksum(source_string):
     return answer
 
 
+class HeaderInformation(dict):
+    """ Simple storage received IP and ICMP header informations """
+    def __init__(self, names, struct_format, data):
+        unpacked_data = struct.unpack(struct_format, data)
+        dict.__init__(self, dict(zip(names, unpacked_data)))
+
+
 class Ping(object):
     def __init__(self, destination, timeout=1000, packet_size=55, own_id=None):
         self.destination = destination
@@ -110,15 +117,17 @@ class Ping(object):
     def print_unknwon_host(self, e):
         print("\nPYTHON-PING: Unknown host: %s (%s)\n" % (self.destination, e.args[1]))
 
-    def print_success(self, delay, ip, packet_size, icmp_seq_number, ip_ttl):
+    def print_success(self, delay, ip, packet_size, ip_header, icmp_header):
         if ip == self.destination:
             from_info = ip
         else:
             from_info = "%s (%s)" % (self.destination, ip)
 
         print("%d bytes from %s: icmp_seq=%d ttl=%d time=%.1f ms" % (
-            packet_size, from_info, icmp_seq_number, ip_ttl, delay)
+            packet_size, from_info, icmp_header["seq_number"], ip_header["ttl"], delay)
         )
+        #print("IP header: %r" % ip_header)
+        #print("ICMP header: %r" % icmp_header)
 
     def print_failed(self):
         print("Request timed out.")
@@ -126,8 +135,9 @@ class Ping(object):
     def print_exit(self):
         print("\n----%s PYTHON PING Statistics----" % (self.destination))
 
-        if self.send_count > 0:
-            lost_rate = (self.send_count - self.receive_count) / self.send_count * 100.0
+        lost_count = self.send_count - self.receive_count
+        #print("%i packets lost" % lost_count)
+        lost_rate = float(lost_count) / self.send_count * 100.0
 
         print("%d packets transmitted, %d packets received, %0.1f%% packet loss" % (
             self.send_count, self.receive_count, lost_rate
@@ -203,7 +213,7 @@ class Ping(object):
             return
         self.send_count += 1
 
-        receive_time, packet_size, ip, icmp_seq_number, ip_ttl = self.receive_one_ping(current_socket)
+        receive_time, packet_size, ip, ip_header, icmp_header = self.receive_one_ping(current_socket)
         current_socket.close()
 
         if receive_time:
@@ -215,7 +225,7 @@ class Ping(object):
             if self.max_time < delay:
                 self.max_time = delay
 
-            self.print_success(delay, ip, packet_size, icmp_seq_number, ip_ttl)
+            self.print_success(delay, ip, packet_size, ip_header, icmp_header)
             return delay
         else:
             self.print_failed()
@@ -277,23 +287,29 @@ class Ping(object):
 
             packet_data, address = current_socket.recvfrom(ICMP_MAX_RECV)
 
-            ip_header = packet_data[:20]
-            ip_version, ip_type, ip_length, \
-            ip_id, ip_flags, ip_ttl, ip_protocol, \
-            ip_checksum, ip_src_ip, ip_dest_ip = struct.unpack(
-                "!BBHHHBBHII", ip_header
+            icmp_header = HeaderInformation(
+                names=[
+                    "type", "code", "checksum",
+                    "packet_id", "seq_number"
+                ],
+                struct_format="!BBHHH",
+                data=packet_data[20:28]
             )
 
-            icmp_header = packet_data[20:28]
-            icmp_type, icmp_code, icmp_checksum, \
-            icmp_packet_id, icmp_seq_number = struct.unpack(
-                "!BBHHH", icmp_header
-            )
-
-            if icmp_packet_id == self.own_id: # Our packet
+            if icmp_header["packet_id"] == self.own_id: # Our packet
+                ip_header = HeaderInformation(
+                    names=[
+                        "version", "type", "length",
+                        "id", "flags", "ttl", "protocol",
+                        "checksum", "src_ip", "dest_ip"
+                    ],
+                    struct_format="!BBHHHBBHII",
+                    data=packet_data[:20]
+                )
                 packet_size = len(packet_data) - 28
-                ip = socket.inet_ntoa(struct.pack("!I", ip_src_ip))
-                return receive_time, packet_size, ip, icmp_seq_number, ip_ttl
+                ip = socket.inet_ntoa(struct.pack("!I", ip_header["src_ip"]))
+                # XXX: Why not ip = address[0] ???
+                return receive_time, packet_size, ip, ip_header, icmp_header
 
             timeout = timeout - select_duration
             if timeout <= 0:
