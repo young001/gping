@@ -14,14 +14,14 @@ Original Version from [[ftp://ftp.visi.com/users/mdc/ping.py|Matthew Dixon Cowle
 {{{
 ~/python-ping$ sudo ./ping.py google.com
 
-PYTHON-PING google.com (74.125.39.147): 55 data bytes
-64 bytes from 74.125.39.147: icmp_seq=0 ttl=53 time=23 ms
-64 bytes from 74.125.39.147: icmp_seq=1 ttl=52 time=20 ms
-64 bytes from 74.125.39.147: icmp_seq=2 ttl=53 time=22 ms
+PYTHON-PING google.com (209.85.148.99): 55 data bytes
+64 bytes from google.com (209.85.148.99): icmp_seq=0 ttl=54 time=56.2 ms
+64 bytes from google.com (209.85.148.99): icmp_seq=1 ttl=54 time=55.7 ms
+64 bytes from google.com (209.85.148.99): icmp_seq=2 ttl=54 time=55.5 ms
 
-----74.125.39.147 PYTHON PING Statistics----
+----google.com PYTHON PING Statistics----
 3 packets transmitted, 3 packets received, 0.0% packet loss
-round-trip (ms)  min/avg/max = 20/22.4/23
+round-trip (ms)  min/avg/max = 55.468/55.795/56.232
 }}}
 
 
