@@ -55,6 +55,12 @@
     >source_string< is actually bytes, added .encode() to data in
     send_one_ping()).  That's about it.
 
+    March 11, 2010
+    --------------
+    changes by Samuel Stauffer:
+    - replaced time.clock with default_timer which is set to
+      time.clock on windows and time.time on other systems.
+
     November 8, 2009
     ----------------
     Improved compatibility with GNU/Linux systems.
@@ -154,6 +160,14 @@
 
 
 import os, sys, socket, struct, select, time, signal
+
+
+if sys.platform == "win32":
+    # On Windows, the best timer is time.clock()
+    default_timer = time.clock
+else:
+    # On most other platforms the best timer is time.time()
+    default_timer = time.time
 
 
 # ICMP parameters
