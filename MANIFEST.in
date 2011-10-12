@@ -1,4 +1,4 @@
-include AUTHORS HISTORY LICENSE MANIFEST.in README.creole 
+include AUTHORS LICENSE MANIFEST.in README.creole 
 recursive-include *.py
 recursive-exclude * *.pyc 
 recursive-exclude * *.pyo
