@@ -31,6 +31,12 @@ round-trip (ms)  min/avg/max = 20/22.4/23
 * create a CLI interface
 * add a "suprocess ping", with output parser
 
+
+== contribute ==
+
+[[http://help.github.com/fork-a-repo/|Fork this repo]] on [[https://github.com/jedie/python-ping/|GitHub]] and [[http://help.github.com/send-pull-requests/|send pull requests]]. Thank you.
+
+
 == Revision history ==
 
 ==== Oct. 12, 2011 ====
