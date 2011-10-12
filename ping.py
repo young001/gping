@@ -145,8 +145,6 @@ def send_one_ping(mySocket, destIP, myID, mySeqNumber, numDataBytes):
     """
     Send one ping to the given >destIP<.
     """
-    destIP = socket.gethostbyname(destIP)
-
     # Header is type (8), code (8), checksum (16), id (16), sequence (16)
     myChecksum = 0
 
@@ -273,6 +271,7 @@ def verbose_ping(hostname, timeout=1000, count=3, numDataBytes=55):
 
     try:
         destIP = socket.gethostbyname(hostname)
+        # FIXME: Use destIP only for display this line here? see: https://github.com/jedie/python-ping/issues/3
         print("\nPYTHON-PING %s (%s): %d data bytes" % (hostname, destIP, numDataBytes))
     except socket.gaierror as e:
         print("\nPYTHON-PING: Unknown host: %s (%s)" % (hostname, e.args[1]))
