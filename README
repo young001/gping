@@ -1,2 +1,4 @@
-Originally from http://svn.pylucid.net/pylucid/CodeSnippets/ping.py
-This version maintained at http://github.com/samuel/python-ping
+A pure python ping implementation using raw sockets.
+
+Note that ICMP messages can only be sent from processes running as root
+(in Windows, you must run this script as 'Administrator').
