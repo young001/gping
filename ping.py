@@ -28,23 +28,11 @@ else:
 
 
 # ICMP parameters
-
 ICMP_ECHOREPLY = 0 # Echo reply (per RFC792)
 ICMP_ECHO = 8 # Echo request (per RFC792)
 ICMP_MAX_RECV = 2048 # Max size of incoming buffer
 
 MAX_SLEEP = 1000
-
-class PingStats:
-    dest_ip = "0.0.0.0"
-    send_count = 0
-    receive_count = 0
-    min_time = 999999999
-    max_time = 0
-    total_time = 0
-    lost_count = 1.0
-
-current_stats = PingStats # Used globally FIXME: Don't use global
 
 
 def calculate_checksum(source_string):
@@ -88,16 +76,24 @@ def calculate_checksum(source_string):
     return answer
 
 
-
 class Ping(object):
-    def __init__(self, dest_ip, timeout=1000, packet_size=55, own_id=None):
-        self.dest_ip = dest_ip
+    def __init__(self, destination, timeout=1000, packet_size=55, own_id=None):
+        self.destination = destination
         self.timeout = timeout
         self.packet_size = packet_size
         if own_id is None:
             self.own_id = os.getpid() & 0xFFFF
         else:
             self.own_id = own_id
+
+        try:
+            # FIXME: Use destination only for display this line here? see: https://github.com/jedie/python-ping/issues/3
+            self.dest_ip = socket.gethostbyname(self.destination)
+        except socket.gaierror as e:
+            self.print_unknown_host(e)
+            sys.exit(-1)
+        else:
+            self.print_start()
 
         self.seq_number = 0
         self.send_count = 0
@@ -108,26 +104,27 @@ class Ping(object):
 
     #--------------------------------------------------------------------------
 
-    def start(self):
-        try:
-            ip = socket.gethostbyname(self.dest_ip)
-            # FIXME: Use dest_ip only for display this line here? see: https://github.com/jedie/python-ping/issues/3
-            print("\nPYTHON-PING %s (%s): %d data bytes" % (self.dest_ip, ip, self.packet_size))
-        except socket.gaierror as e:
-            print("\nPYTHON-PING: Unknown host: %s (%s)" % (self.dest_ip, e.args[1]))
-            print("")
-            sys.exit(-1)
+    def print_start(self):
+        print("\nPYTHON-PING %s (%s): %d data bytes" % (self.destination, self.dest_ip, self.packet_size))
 
-    def success(self, delay, from_info, packet_size, ip_src_ip, icmp_seq_number, ip_ttl):
+    def print_unknwon_host(self, e):
+        print("\nPYTHON-PING: Unknown host: %s (%s)\n" % (self.destination, e.args[1]))
+
+    def print_success(self, delay, ip, packet_size, icmp_seq_number, ip_ttl):
+        if ip == self.destination:
+            from_info = ip
+        else:
+            from_info = "%s (%s)" % (self.destination, ip)
+
         print("%d bytes from %s: icmp_seq=%d ttl=%d time=%.1f ms" % (
             packet_size, from_info, icmp_seq_number, ip_ttl, delay)
         )
 
-    def failed(self):
+    def print_failed(self):
         print("Request timed out.")
 
-    def exit(self):
-        print("\n----%s PYTHON PING Statistics----" % (self.dest_ip))
+    def print_exit(self):
+        print("\n----%s PYTHON PING Statistics----" % (self.destination))
 
         if self.send_count > 0:
             lost_rate = (self.send_count - self.receive_count) / self.send_count * 100.0
@@ -147,9 +144,9 @@ class Ping(object):
 
     def signal_handler(self, signum, frame):
         """
-        Handle exit via signals
+        Handle print_exit via signals
         """
-        self.exit()
+        self.print_exit()
         print("\n(Terminated with signal %d)\n" % (signum))
         sys.exit(0)
 
@@ -183,15 +180,12 @@ class Ping(object):
             if (MAX_SLEEP > delay):
                 time.sleep((MAX_SLEEP - delay) / 1000.0)
 
-        self.exit()
+        self.print_exit()
 
     def do(self):
         """
         Send one ICMP ECHO_REQUEST and receive the response until self.timeout
         """
-        if self.seq_number == 0:
-            self.start()
-
         try: # One could use UDP here, but it's obscure
             current_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.getprotobyname("icmp"))
         except socket.error, (errno, msg):
@@ -209,7 +203,7 @@ class Ping(object):
             return
         self.send_count += 1
 
-        receive_time, packet_size, ip_src_ip, icmp_seq_number, ip_ttl = self.receive_one_ping(current_socket)
+        receive_time, packet_size, ip, icmp_seq_number, ip_ttl = self.receive_one_ping(current_socket)
         current_socket.close()
 
         if receive_time:
@@ -221,11 +215,10 @@ class Ping(object):
             if self.max_time < delay:
                 self.max_time = delay
 
-            from_info = socket.inet_ntoa(struct.pack("!I", ip_src_ip))
-            self.success(delay, from_info, packet_size, ip_src_ip, icmp_seq_number, ip_ttl)
+            self.print_success(delay, ip, packet_size, icmp_seq_number, ip_ttl)
             return delay
         else:
-            self.failed()
+            self.print_failed()
 
     def send_one_ping(self, current_socket):
         """
@@ -259,7 +252,7 @@ class Ping(object):
         send_time = default_timer()
 
         try:
-            current_socket.sendto(packet, (self.dest_ip, 1)) # Port number is irrelevant for ICMP
+            current_socket.sendto(packet, (self.destination, 1)) # Port number is irrelevant for ICMP
         except socket.error as e:
             print("General failure (%s)" % (e.args[1]))
             current_socket.close()
@@ -299,7 +292,8 @@ class Ping(object):
 
             if icmp_packet_id == self.own_id: # Our packet
                 packet_size = len(packet_data) - 28
-                return receive_time, packet_size, ip_src_ip, icmp_seq_number, ip_ttl
+                ip = socket.inet_ntoa(struct.pack("!I", ip_src_ip))
+                return receive_time, packet_size, ip, icmp_seq_number, ip_ttl
 
             timeout = timeout - select_duration
             if timeout <= 0:
@@ -324,7 +318,7 @@ if __name__ == '__main__':
         # to the local host, but 2.7 tries to resolve to the local *gateway*)
         verbose_ping("localhost")
 
-        # Should fail with 'getaddrinfo failed':
+        # Should fail with 'getaddrinfo print_failed':
         verbose_ping("foobar_url.foobar")
 
         # Should fail (timeout), but it depends on the local network:
