@@ -296,7 +296,7 @@ def verbose_ping(hostname, timeout=1000, count=3, numDataBytes=55):
 
 if __name__ == '__main__':
     # FIXME: Add a real CLI
-    if len(sys.argv) == 0:
+    if len(sys.argv) == 1:
         print "DEMO"
 
         # These should work:
