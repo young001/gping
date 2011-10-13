@@ -108,6 +108,7 @@ setup(
     packages=find_packages(),
     include_package_data=True, # include package data under svn source control
     zip_safe=False,
+    scripts=["ping.py"],
     classifiers=[
         # http://pypi.python.org/pypi?%3Aaction=list_classifiers
 #        "Development Status :: 4 - Beta",
