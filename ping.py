@@ -114,7 +114,7 @@ class Ping(object):
     def print_start(self):
         print("\nPYTHON-PING %s (%s): %d data bytes" % (self.destination, self.dest_ip, self.packet_size))
 
-    def print_unknwon_host(self, e):
+    def print_unknown_host(self, e):
         print("\nPYTHON-PING: Unknown host: %s (%s)\n" % (self.destination, e.args[1]))
 
     def print_success(self, delay, ip, packet_size, ip_header, icmp_header):
