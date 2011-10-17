@@ -39,6 +39,9 @@ round-trip (ms)  min/avg/max = 55.468/55.795/56.232
 
 == Revision history ==
 
+==== Oct. 17, 2011 ====
+* [[https://github.com/jedie/python-ping/pull/6|Bugfix if host is unknown]]
+
 ==== Oct. 12, 2011 ====
 Merge sources and create a seperate github repository:
 * https://github.com/jedie/python-ping
