@@ -104,3 +104,9 @@ For some reason, the checksum bytes are in the wrong order when
 this is run under Solaris 2.X for SPARC but it works right under
 Linux x86. Since I don't know just what's wrong, I'll swap the
 bytes always and then do an htons().
+
+== Links ==
+
+| Sourcecode at GitHub | https://github.com/jedie/python-ping |
+| Python Package Index | http://pypi.python.org/pypi/python-ping/ |
+| IRC                  | [[http://www.pylucid.org/permalink/304/irc-channel|#pylucid on freenode.net]]
