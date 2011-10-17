@@ -84,11 +84,11 @@ def get_authors():
     try:
         f = file(os.path.join(PACKAGE_ROOT, "AUTHORS"), "r")
         for line in f:
-             if not line.strip().startswith("*"):
-                 continue
-             if "--" in line:
-                 line = line.split("--", 1)[0]
-             authors.append(line.strip(" *\r\n"))
+            if not line.strip().startswith("*"):
+                continue
+            if "--" in line:
+                line = line.split("--", 1)[0]
+            authors.append(line.strip(" *\r\n"))
         f.close()
         authors.sort()
     except Exception, err:
