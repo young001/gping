@@ -19,7 +19,7 @@
 import os, sys, socket, struct, select, time, signal
 
 
-if sys.platform == "win32":
+if sys.platform.startswith("win32"):
     # On Windows, the best timer is time.clock()
     default_timer = time.clock
 else:
