@@ -16,7 +16,13 @@
 """
 
 
-import os, sys, socket, struct, select, time, signal
+import os
+import select
+import signal
+import socket
+import struct
+import sys
+import time
 
 
 if sys.platform.startswith("win32"):
