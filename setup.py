@@ -125,4 +125,5 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: System :: Networking :: Monitoring",
     ],
+    test_suite="tests",
 )
