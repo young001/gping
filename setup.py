@@ -105,6 +105,7 @@ setup(
     maintainer="Jens Diemer",
     maintainer_email="python-ping@jensdiemer.de",
     url='https://github.com/jedie/python-ping/',
+    keywords="ping icmp network latency",
     packages=find_packages(),
     include_package_data=True, # include package data under svn source control
     zip_safe=False,
