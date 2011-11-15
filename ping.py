@@ -82,13 +82,6 @@ def calculate_checksum(source_string):
     return answer
 
 
-class HeaderInformation(dict):
-    """ Simple storage received IP and ICMP header informations """
-    def __init__(self, names, struct_format, data):
-        unpacked_data = struct.unpack(struct_format, data)
-        dict.__init__(self, dict(zip(names, unpacked_data)))
-
-
 class Ping(object):
     def __init__(self, destination, timeout=1000, packet_size=55, own_id=None):
         self.destination = destination
@@ -171,6 +164,13 @@ class Ping(object):
         if hasattr(signal, "SIGBREAK"):
             # Handle Ctrl-Break e.g. under Windows 
             signal.signal(signal.SIGBREAK, self.signal_handler)
+
+    #--------------------------------------------------------------------------
+
+    def header2dict(self, names, struct_format, data):
+        """ unpack the raw received IP and ICMP header informations to a dict """
+        unpacked_data = struct.unpack(struct_format, data)
+        return dict(zip(names, unpacked_data))
 
     #--------------------------------------------------------------------------
 
@@ -293,7 +293,7 @@ class Ping(object):
 
             packet_data, address = current_socket.recvfrom(ICMP_MAX_RECV)
 
-            icmp_header = HeaderInformation(
+            icmp_header = self.header2dict(
                 names=[
                     "type", "code", "checksum",
                     "packet_id", "seq_number"
@@ -303,7 +303,7 @@ class Ping(object):
             )
 
             if icmp_header["packet_id"] == self.own_id: # Our packet
-                ip_header = HeaderInformation(
+                ip_header = self.header2dict(
                     names=[
                         "version", "type", "length",
                         "id", "flags", "ttl", "protocol",
