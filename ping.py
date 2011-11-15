@@ -82,6 +82,25 @@ def calculate_checksum(source_string):
     return answer
 
 
+def is_valid_ip4_address(addr):
+    parts = addr.split(".")
+    if not len(parts) == 4:
+        return False
+    for part in parts:
+        try:
+            number = int(part)
+        except ValueError:
+            return False
+        if number > 255:
+            return False
+    return True
+
+def to_ip(addr):
+    if is_valid_ip4_address(addr):
+        return addr
+    return socket.gethostbyname(addr)
+
+
 class Ping(object):
     def __init__(self, destination, timeout=1000, packet_size=55, own_id=None):
         self.destination = destination
@@ -94,10 +113,9 @@ class Ping(object):
 
         try:
             # FIXME: Use destination only for display this line here? see: https://github.com/jedie/python-ping/issues/3
-            self.dest_ip = socket.gethostbyname(self.destination)
+            self.dest_ip = to_ip(self.destination)
         except socket.gaierror as e:
             self.print_unknown_host(e)
-            sys.exit(-1)
         else:
             self.print_start()
 
@@ -115,6 +133,7 @@ class Ping(object):
 
     def print_unknown_host(self, e):
         print("\nPYTHON-PING: Unknown host: %s (%s)\n" % (self.destination, e.args[1]))
+        sys.exit(-1)
 
     def print_success(self, delay, ip, packet_size, ip_header, icmp_header):
         if ip == self.destination:
