@@ -40,7 +40,5 @@ setup(
     maintainer_email="mastahyeti@gmail.com",
     url='https://github.com/mastahyeti/gping',
     keywords="ping icmp network latency gevent",
-    packages=find_packages(),
-    include_package_data=True, # include package data under svn source control
-    zip_safe=False,
+    py_modules=['gping']
 )
