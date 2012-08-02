@@ -212,10 +212,6 @@ class GPing:
                 # delete the ping
                 del(self.pings[packet_id])
 
-            else:
-                # should we raise an exception?
-                print "we received a ping we weren't expecting (bad id)"
-
 
 
 if __name__ == '__main__':
