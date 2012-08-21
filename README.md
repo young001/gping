@@ -8,6 +8,10 @@ This is a fork of the python-ping project that strips out most everything and re
     gp.send("127.0.0.1",test_callback)
     gp.join()
 
+## Install ##
+
+This *should* be easy on your average \*nix box (raw sockets are needed). Just type `sudo pip install gping`
+
 ## License and Credits ##
 
 The python-ping project was started by Matthew Dixon Cowles.
