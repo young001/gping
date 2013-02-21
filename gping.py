@@ -106,7 +106,7 @@ class GPing:
             gevent.sleep()
 
 
-    def send(self, dest_addr, callback, psize=64):
+    def send(self, domain, callback, psize=64):
         """
         Send a ICMP echo request.
         :dest_addr - where to send it
@@ -118,7 +118,7 @@ class GPing:
             gevent.sleep()
 
         #resolve hostnames
-        dest_addr  =  socket.gethostbyname(dest_addr)
+        dest_addr  =  socket.gethostbyname(domain)
 
         # figure out our id
         packet_id = self.id
@@ -128,7 +128,7 @@ class GPing:
 
 
         # make a spot for this ping in self.pings
-        self.pings[packet_id] = {'sent':False,'success':False,'error':False,'dest_addr':dest_addr,'callback':callback}
+        self.pings[packet_id] = {'sent':False,'success':False,'error':False,'dest_addr':domain,'callback':callback}
 
         # Remove header size from packet size
         psize = psize - 8
